@@ -1,0 +1,31 @@
+---
+.deploy:
+  stage: deploy
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+  before_script:
+    - wget https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -O /usr/local/bin/yq
+    - chmod +x /usr/local/bin/yq
+    - apk add jq
+    - !reference [.setup_swarm, script]
+    - !reference [.prepare_secrets, script]
+    - !reference [.version_secrets_configs, script]
+    - !reference [.docker_login, script]
+    - !reference [.set_app_version, script]
+  script:
+    - echo "Deploying stack '$STACK_NAME' from image version '$APP_VERSION' ..."
+    - docker stack deploy -c "${STACK_FILE:-stack.yml}" "$STACK_NAME" --with-registry-auth
+    - if [ -n "$CI_ENVIRONMENT_URL" ]; then echo "Application available at $CI_ENVIRONMENT_URL"; fi
+
+.stop_deploy:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+    action: stop
+  before_script:
+    - !reference [.setup_swarm, script]
+  script:
+    - echo "Destroying stack deployment '$STACK_NAME' ..."
+    - docker stack rm "$STACK_NAME"

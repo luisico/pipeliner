@@ -1,0 +1,14 @@
+---
+# TODO:
+# - check if release is present (see https://gitlab.com/gitlab-org/gitlab/-/issues/320950)
+# - check if docker images are present
+.prepare_release:
+  stage: pre_release
+  script:
+    - !reference [.set_app_version, script]
+    - |-
+      echo "Checking if tag is already present in git repository ..."
+      if git ls-remote --exit-code --tags origin refs/tags/$APP_VERSION; then
+        echo "Tag $APP_VERSION already exists!"
+        exit 1
+      fi

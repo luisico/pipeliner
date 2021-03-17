@@ -1,0 +1,21 @@
+---
+.deploy_staging:
+  extends: .deploy
+  variables:
+    APP_ENV: staging
+    APP_VERSION: $CI_COMMIT_SHA
+    STACK_NAME: $APP_NAME-$CI_COMMIT_REF_SLUG
+    STACK_DOMAIN: $SWARM_CLUSTER
+  environment:
+    name: staging/$CI_COMMIT_REF_SLUG
+    url: https://$APP_NAME-$CI_COMMIT_REF_SLUG.$SWARM_CLUSTER
+    auto_stop_in: 1 day
+    on_stop: Stop Staging
+
+.stop_staging:
+  extends: .stop_deploy
+  variables:
+    APP_ENV: staging
+    STACK_NAME: $APP_NAME-$CI_COMMIT_REF_SLUG
+  environment:
+    name: staging/$CI_COMMIT_REF_SLUG

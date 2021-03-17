@@ -1,0 +1,5 @@
+---
+.test:
+  stage: test
+  script:
+    - echo "Testing script not found, assuming we have a perfect code!"

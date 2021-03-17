@@ -1,0 +1,10 @@
+---
+.deploy_production:
+  extends: .deploy
+  variables:
+    APP_ENV: production
+    STACK_NAME: $APP_NAME
+    STACK_DOMAIN: $APP_DOMAIN
+  environment:
+    name: production
+    url: https://$APP_NAME.$APP_DOMAIN

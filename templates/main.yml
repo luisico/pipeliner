@@ -1,0 +1,43 @@
+---
+# Following variables need to be available to the pipeline via GitLab's UI or .gitlab-ci-yml.
+#
+# Swarm Cluster (ask cluster admin for values):
+# SWARM_CLUSTER             Hostname or IP for a Swarm Cluster manager
+# CA_TLS_CERT               CA TLS cert to verify client cert
+# CLIENT_TLS_CERT           Client TLS cert
+# CLIENT_TLS_KEY_BASE64     Client TLS key (base64 encoded)
+
+# Application properties:
+# APP_NAME                  App prefix to isolate deployments (default: "$CI_PROJECT_NAME")
+# APP_DOMAIN                Domain for app URL in production (default: "rockefeller.edu")
+# STACK_FILE                Relative path to docker-compose file (default: "stack.yml")
+# SECRET_*                  App secrets to create in swarm stack, after removing the prefix SECRET_ (optional)
+# SECRET_*_BASE64           Same as above but base64 encoded, after removing suffix _BASE64 too (optional)
+
+# Computed by pipeline (see templates/environment for default values):
+# APP_ENV                   Environment to run on
+# APP_VERSION               Version to build/tag images, create releases and deployments.
+# STACK_NAME                Name of deployed stack, used in swarm stacks, secrets and configs to isolate deployments
+# STACK_DOMAIN              Domain URL for deployments
+
+variables:
+  APP_NAME: $CI_PROJECT_NAME
+  APP_DOMAIN: rockefeller.edu
+  STACK_FILE: stack.yml
+
+image: docker:20.10.5-git
+
+include:
+  - project: cce/pipeliner
+    ref: master
+    file:
+      # Jobs
+      - /templates/jobs/scripts.yml
+      - /templates/jobs/build.yml
+      - /templates/jobs/test.yml
+      - /templates/jobs/pre_release.yml
+      - /templates/jobs/release.yml
+      - /templates/jobs/deploy.yml
+      # Environments
+      - /templates/environments/staging.yml
+      - /templates/environments/production.yml

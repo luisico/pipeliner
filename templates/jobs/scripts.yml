@@ -1,0 +1,102 @@
+---
+#
+# Login to docker registry
+#
+
+.docker_login:
+  script:
+    - echo "Logging to GitLab Container Registry with CI credentials ..."
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+
+#
+# Setup secure communication with Swarm Cluster
+#
+# User defined variables:
+# - SWARM_CLUSTER
+# - CA_TLS_CERT
+# - CLIENT_TLS_CERT
+# - CLIENT_TLS_KEY_BASE64
+# TODO:
+# - move some vars to job variables?
+
+.setup_swarm:
+  script:
+    - echo "Setting up Docker Swarm cluster ..."
+    - export DOCKER_HOST="tcp://$SWARM_CLUSTER:2376"
+    - export DOCKER_TLS_VERIFY=1
+    - mkdir -p ~/.docker
+    - echo "$CA_TLS_CERT" > ~/.docker/ca.pem
+    - echo "$CLIENT_TLS_CERT" > ~/.docker/cert.pem
+    - echo "$CLIENT_TLS_KEY_BASE64" | base64 -d > ~/.docker/key.pem
+
+#
+# Prepare unique docker secrets
+#
+# Parse all environment variables with SECRET_ prefix and output their item
+# in directory ~/.secrets with files named after the secret.
+# If environment variables has suffix _BASE64, the item is first decoded.
+#
+# User defined variables:
+# - SECRET_*
+
+.prepare_secrets:
+  script:
+    - echo "Preparing secrets in files ..."
+    - mkdir ~/.secrets
+    - ln -s ~/.secrets secrets
+    - |-
+      for secret in $(printenv | grep ^SECRET_); do
+        var="${secret%%=*}"
+        val="${secret#*=}"
+        if echo "$var" | grep -q _BASE64$; then
+          val="$(echo $val | base64 -d)"
+        fi
+        file="$(echo $var | sed -e 's/^SECRET_//' -e 's/_BASE64$//' | tr 'A-Z' 'a-z')"
+        echo "$val" > "secrets/$file"
+      done
+
+#
+# Version docker secrets and configs
+#
+# Produce version environment variables ("*_VERSION") for each secret and config present in the swarm stack file. Version is based on the md5sum of the secret/config value such that the docker secret/config has a maximum length of 64 characters.
+#
+# User defined variables:
+# - STACK_FILE
+# - STACK_NAME
+
+.version_secrets_configs:
+  script:
+    - echo "Versioning docker swarm secrets and configs ..."
+    - items=$(yq r -j ${STACK_FILE:-stack.yml} | jq -r '.secrets // [], .configs // [] | keys[] as $k | "\($k)=\(.[$k] | .file)"')
+    - |-
+      for item in $items; do
+        name="${item%=*}"
+        file_path="${item#*=}"
+        var="$(echo $name | tr 'a-z' 'A-Z' | tr '-' '_' )_VERSION"
+        remaining_length=$(expr 64 - ${#STACK_NAME} - ${#name} - 2)
+        value="$(md5sum $file_path | awk '{print $1}' | cut -c -$remaining_length)"
+        echo "  ... exporting $var"
+        export $var="$value"
+      done
+
+#
+# Find App version
+#
+# Set APP_VERSION environment variable depending on pipeline stage and
+# existence of VERSION file.
+#
+# User defined variables:
+# - APP_VERSION
+
+.set_app_version:
+  script:
+    - echo "Setting APP_VERSION ..."
+    - |-
+      if [ -z "$APP_VERSION" -o "$APP_VERSION" = "" ]; then
+        if [ ! -e VERSION ]; then
+          echo "VERSION file does not exist!"
+          echo 1
+        fi
+        APP_VERSION="$(cat VERSION)"
+      fi
+      echo "APP_VERSION set to '$APP_VERSION'"

@@ -1,0 +1,25 @@
+---
+.create_release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:v0.6.0
+  script:
+    - echo "Creating release"
+  release:
+    description: ${CI_MERGE_REQUEST_TITLE:-$CI_COMMIT_TITLE}
+    tag_name: $(cat VERSION)
+
+.tag_image:
+  stage: release
+  tags:
+    - docker-build
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    - !reference [.docker_login, script]
+    - !reference [.set_app_version, script]
+  script:
+    - docker pull "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE:latest"
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+    - docker tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE:$APP_VERSION"
+    - docker push "$CI_REGISTRY_IMAGE:$APP_VERSION"
