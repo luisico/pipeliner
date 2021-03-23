@@ -1,0 +1,31 @@
+---
+include:
+  project: cce/pipeliner
+  ref: master
+  file:
+    - /templates/main.yml
+    - /pipelines/release-from-tag.yml
+
+variables:
+  APP_NAME: myapp
+
+# Customize staging deployment for apps without URL
+Deploy Staging:
+  stage: deploy
+  extends: .deploy_staging
+  environment:
+    url:
+  rules:
+    - if: '$CI_COMMIT_BRANCH && $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH'
+
+# Customize production deployment for apps without URL
+Deploy Production:
+  stage: deploy
+  extends: .deploy_production
+  variables:
+    APP_VERSION: $CI_COMMIT_TAG
+    environment:
+      url:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: manual

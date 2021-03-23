@@ -1,0 +1,17 @@
+---
+include:
+  project: cce/pipeliner
+  ref: master
+  file:
+    - /templates/main.yml
+    - /pipelines/release-from-trunk.yml
+
+variables:
+  APP_NAME: myapp
+
+# Set APP_VERSION from node's package.json
+# Needs an image with node installed!
+.set_app_version:
+  script:
+    - APP_VERSION=$(node -pe "require('./package.json').version")
+      echo "APP_VERSION set to '$APP_VERSION'"

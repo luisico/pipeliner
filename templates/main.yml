@@ -16,7 +16,7 @@
 
 # Computed by pipeline (see templates/environment for default values):
 # APP_ENV                   Environment to run on
-# APP_VERSION               Version to build/tag images, create releases and deployments.
+# APP_VERSION               Version to build/tag images, create releases and deployments
 # STACK_NAME                Name of deployed stack, used in swarm stacks, secrets and configs to isolate deployments
 # STACK_DOMAIN              Domain URL for deployments
 
