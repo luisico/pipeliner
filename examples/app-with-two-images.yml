@@ -1,0 +1,54 @@
+---
+include:
+  project: cce/pipeliner
+  ref: master
+  file:
+    - /templates/main.yml
+    - /pipelines/release-from-tag.yml
+
+variables:
+  APP_NAME: myapp
+
+# Stop Build Image job from running
+Build Image:
+  rules:
+    - when: never
+
+# Create two new jobs to build backend and frontend
+Build Backend:
+  extends: Build Image
+  variables:
+    DOCKER_CONTEXT: backend
+    DOCKER_IMAGE: $CI_REGISTRY_IMAGE/backend
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+Build Frontend:
+  extends: Build Image
+  variables:
+    DOCKER_CONTEXT: frontend
+    DOCKER_IMAGE: $CI_REGISTRY_IMAGE/frontend
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+# Customize Tag Image job to tag backend and frontend
+Tag Image:
+  stage: release
+  extends: .tag_image
+  variables:
+    APP_VERSION: $CI_COMMIT_TAG
+  script:
+    - docker pull "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/backend:latest"
+    - docker push "$CI_REGISTRY_IMAGE/backend:latest"
+    - docker tag "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/backend:$APP_VERSION"
+    - docker push "$CI_REGISTRY_IMAGE/backend:$APP_VERSION"
+    - docker pull "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA"
+    - docker tag "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/frontend:latest"
+    - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
+    - docker tag "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHA" "$CI_REGISTRY_IMAGE/frontend:$APP_VERSION"
+    - docker push "$CI_REGISTRY_IMAGE/frontend:$APP_VERSION"
+  rules:
+    - if: '$CI_COMMIT_TAG'
