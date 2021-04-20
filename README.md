@@ -68,6 +68,10 @@ Scripts shared by multiple jobs are compiled together in [jobs/scripts.yml](./jo
 
 [This job](./jobs/build.yml) builds a docker image and pushes it to the project's registry using the commit's SHA as image tag, i.e. `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA`. If the latest images (`:$CI_COMMIT_BEFORE_SHA` shorten to 8 characters, and `:latest`) are present in the registry, they will be used as cache to speed up the build process.
 
+Two variables can be passed customize the build job:
+- `DOCKER_CONTEXT` is the relative path to directory with the `Dockerfile` (defaults to `.`).
+- `DOCKER_IMAGE` is the full URL to the image registry (defaults to `$CI_REGISTRY_IMAGE`). To customize the image name, usually add your path, i.e. `$CI_REGISTRY_IMAGE/my-image-name`.
+
 If the `Dockerfile` uses [Label Schema](http://label-schema.org) to label the image, the build process will pass the following build arguments:
 - `BUILD_DATE`: with value `date -u +'%Y-%m-%dT%H:%M:%SZ'`
 - `VCS_REF`: with value `$CI_COMMIT_SHORT_SHA`
@@ -91,7 +95,7 @@ See [Release Jobs](#release) below to understand how release versions are found.
 
 The first job one leverages GitLab's [release keyword](https://docs.gitlab.com/ee/ci/yaml/README.html#release) to create a new [Release in GitLab](https://docs.gitlab.com/ee/user/project/releases) with the specified version. This job also creates a tag in the remote repository if one doesn't exists already.
 
-The second job will push a tag to the image with the specified version. Additionally, a second tag `:latest` is also pushed.
+The second job will push a tag to the image with the specified version. Additionally, a second tag `:latest` is also pushed. Variable `DOCKER_IMAGE` can be passed to specify the full URL to the image registry (see [Build jobs](#build) above).
 
 For ready-to-use pipelines release version are set as follows:
 - [Release from Trunk](#release-from-trunk) pipelines use the value found in `VERSION` file.
