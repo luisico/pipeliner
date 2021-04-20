@@ -21,5 +21,4 @@
         --build-arg VCS_REF="$CI_COMMIT_SHA"
         --build-arg VCS_URL="$CI_PROJECT_URL"
         --tag "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" .
-    - docker inspect $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA | grep label-schema
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
