@@ -46,7 +46,7 @@ See [pipelines/release-from-trunk.yml](./pipelines/release-from-trunk.yml) for t
 
 A new release is created and deployed to production when a tag is pushed (or manually created via GitLab's UI).
 
-This workflow allows for multiple independently developed features to be release at the same time. Although a `VERSION` file is not needed because the tag will be used to create the release, it is considered a good practice to maintain a `VERSION` file in sync with the tags. image tags. Jobs in the `pre_release` will check for version conflicts.
+This workflow allows for multiple independently developed features to be release at the same time. Although a `VERSION` file is not needed because a git tag will be used to create the release, it is considered a good practice to maintain a `VERSION` file in sync with the tags. Jobs in the `pre_release` will check for version conflicts.
 
 See [pipelines/release-from-tag.yml](./pipelines/release-from-tag.yml) for the full pipeline definition.
 
@@ -79,7 +79,7 @@ To reduce the burden on the GitLab server, it is advised to configure the projec
 
 #### Pre Release
 
-[Pre_release jobs](./templates/jobs/pre_release.yml) perform checks on the release version to avoid conflicts. Currently, the job checks if a tag is already present in the remote repository with the same version. If so, the job will fail and downstream jobs will be block unless it was run on an open merge request. In this case the pipeline is allow to proceed but developers are advised to fix the version before merging.
+[Pre_release jobs](./templates/jobs/pre_release.yml) perform checks on the release version to avoid conflicts. Currently, the job checks if a tag is already present in the remote repository with the same version. If so, the job will fail and downstream jobs will be blocked unless it was run on an open merge request. In this case the pipeline is allowed to proceed but developers are advised to fix the version before merging.
 
 See [Release Jobs](#release) below to understand how release versions are found. Users can customize this as well and how to perform version checks.
 
@@ -127,7 +127,7 @@ Note that [environment templates](#environments) further customize deploy jobs.
 
 ### Environments
 
-Environment templates in [templates/environments](./templates/environments/) build upon the jobs templates to provide further specialize jobs for staging and production environments, and guarantee unique names for all resources in the swarm cluster . Users can define jobs for other custom environments if needed.
+Environment templates in [templates/environments](./templates/environments/) build upon jobs templates to provide specialized jobs for staging and production environments, and guarantee unique names for all resources in the swarm cluster. Users can define jobs for other custom environments if needed.
 
 Environment templates only define jobs for deploy stages, but users can easily define custom specialized jobs for other stages. For example, if the build stage is different in staging and production environments.
 
