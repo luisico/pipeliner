@@ -2,4 +2,4 @@
 .test:
   stage: test
   script:
-    - echo "Testing script not found, assuming we have a perfect code!"
+    - echo "Testing job not set up, assuming we have a perfect code!"

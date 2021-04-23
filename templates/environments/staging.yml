@@ -9,7 +9,7 @@
   environment:
     name: staging/$CI_COMMIT_REF_SLUG
     url: https://$APP_NAME-$CI_COMMIT_REF_SLUG.$SWARM_CLUSTER
-    auto_stop_in: 1 day
+    auto_stop_in: 3 days
     on_stop: Stop Staging
 
 .stop_staging:

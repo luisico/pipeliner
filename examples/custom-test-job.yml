@@ -1,0 +1,22 @@
+---
+include:
+  project: cce/pipeliner
+  ref: master
+  file:
+    - /templates/main.yml
+    - /pipelines/release-from-tag.yml
+
+variables:
+  APP_NAME: myapp
+
+# Customize test job for npm
+Test:
+  stage: test
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - cd /app
+    - npm test
+  rules:
+    - if: '$CI_COMMIT_BRANCH'
