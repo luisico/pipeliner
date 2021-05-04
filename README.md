@@ -64,11 +64,11 @@ Scripts shared by multiple jobs are compiled together in [templates/jobs/scripts
 
 #### Build
 
-[This job](./templates/jobs/build.yml) builds a docker image and pushes it to the project's registry using the commit's SHA as image tag, i.e. `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA`. If the latest images (`:$CI_COMMIT_BEFORE_SHA` and `:latest`) are present in the registry, they will be used as cache to speed up the build process.
+[This job](./templates/jobs/build.yml) builds a docker image and pushes it to the project's registry using the commit's SHA as image tag, i.e. `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA`. If the latest images (`:$CI_COMMIT_BEFORE_SHA` shorten to 8 characters, and `:latest`) are present in the registry, they will be used as cache to speed up the build process.
 
 If the `Dockerfile` uses [Label Schema](http://label-schema.org) to label the image, the build process will pass the following build arguments:
 - `BUILD_DATE`: with value `date -u +'%Y-%m-%dT%H:%M:%SZ'`
-- `VCS_REF`: with value `$CI_COMMIT_SHA`
+- `VCS_REF`: with value `$CI_COMMIT_SHORT_SHA`
 - `VCS_URL`: with value `$CI_PROJECT_URL`
 
 To reduce the burden on the GitLab server, it is advised to configure the project to clean the registry by deleting images with commit SHAs regularly, while keeping images with version tags (https://docs.gitlab.com/ee/user/packages/container_registry/#cleanup-policy).

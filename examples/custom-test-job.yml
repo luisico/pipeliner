@@ -12,7 +12,7 @@ variables:
 # Customize test job for npm
 Test:
   stage: test
-  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   variables:
     GIT_STRATEGY: none
   script:

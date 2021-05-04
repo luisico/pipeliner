@@ -3,7 +3,7 @@
   extends: .deploy
   variables:
     APP_ENV: staging
-    APP_VERSION: $CI_COMMIT_SHA
+    APP_VERSION: $CI_COMMIT_SHORT_SHA
     STACK_NAME: $APP_NAME-$CI_COMMIT_REF_SLUG
     STACK_DOMAIN: $SWARM_CLUSTER
   environment:
