@@ -14,7 +14,7 @@
 # SECRET_*                  App secrets to create in swarm stack, after removing the prefix SECRET_ (optional)
 # SECRET_*_BASE64           Same as above but base64 encoded, after removing suffix _BASE64 too (optional)
 
-# Computed by pipeline (see templates/environment for default values):
+# Computed by pipeline (see environments directory for default values):
 # APP_ENV                   Environment to run on
 # APP_VERSION               Version to build/tag images, create releases and deployments
 # STACK_NAME                Name of deployed stack, used in swarm stacks, secrets and configs to isolate deployments
@@ -32,12 +32,12 @@ include:
     ref: 1.0.0
     file:
       # Jobs
-      - /templates/jobs/scripts.yml
-      - /templates/jobs/build.yml
-      - /templates/jobs/test.yml
-      - /templates/jobs/pre_release.yml
-      - /templates/jobs/release.yml
-      - /templates/jobs/deploy.yml
+      - /jobs/scripts.yml
+      - /jobs/build.yml
+      - /jobs/test.yml
+      - /jobs/pre_release.yml
+      - /jobs/release.yml
+      - /jobs/deploy.yml
       # Environments
-      - /templates/environments/staging.yml
-      - /templates/environments/production.yml
+      - /environments/staging.yml
+      - /environments/production.yml
