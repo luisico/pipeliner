@@ -52,19 +52,19 @@ This workflow allows for multiple independently developed features to be release
 
 See [pipelines/release-from-tag.yml](./pipelines/release-from-tag.yml) for the full pipeline definition.
 
-## Template Jobs
+## Templates
 
 Ready-to-use pipelines are constructed from template jobs. This approach allows developers to customize specific jobs, environments and stages while reusing other jobs, or even create their own custom pipelines from these templates.
 
-Pipeliner provides two types of templates: jobs and environments.
+Pipeliner provides two types of templates: [jobs](#job-templates) and [environments](#environment-templates).
 
-### Jobs
+## Job Templates
 
 Job templates are defined in [jobs](./jobs/) directory and implement foundational jobs for each stage.
 
 Scripts shared by multiple jobs are compiled together in [jobs/scripts.yml](./jobs/scripts.yml) and used by jobs via GitLab's custom YAML [!reference](https://docs.gitlab.com/ee/ci/yaml/README.html#reference-tags) syntax.
 
-#### Build
+### Build
 
 [This job](./jobs/build.yml) builds a docker image and pushes it to the project's registry using the commit's SHA as image tag, i.e. `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA`. If the latest images (`:$CI_COMMIT_BEFORE_SHA` shorten to 8 characters, and `:latest`) are present in the registry, they will be used as cache to speed up the build process.
 
@@ -75,17 +75,17 @@ If the `Dockerfile` uses [Label Schema](http://label-schema.org) to label the im
 
 To reduce the burden on the GitLab server, it is advised to configure the project to clean the registry by deleting images with commit SHAs regularly, while keeping images with version tags (https://docs.gitlab.com/ee/user/packages/container_registry/#cleanup-policy).
 
-#### Test
+### Test
 
 [This job](./jobs/test.yml) is a placeholder for a test job that always passes. Developers should implement their own test job(s).
 
-#### Pre Release
+### Pre Release
 
 [Pre_release jobs](./jobs/pre_release.yml) perform checks on the release version to avoid conflicts. Currently, the job checks if a tag is already present in the remote repository with the same version. If so, the job will fail and downstream jobs will be blocked unless it was run on an open merge request. In this case the pipeline is allowed to proceed but developers are advised to fix the version before merging.
 
 See [Release Jobs](#release) below to understand how release versions are found. Users can customize this as well and how to perform version checks.
 
-#### Release
+### Release
 
 [Two jobs](./jobs/release.yml) are executed in parallel in this stage: (`create_release` and `tag_image`).
 
@@ -112,7 +112,7 @@ Tag Image:
 
 Users can also customize the `.set_app_version` script provided in [jobs/scripts.yml](./jobs/scripts.yml) to set `APP_VERSION`.
 
-#### Deploy
+### Deploy
 
 A [deploy job](./jobs/release.yml) consists of the following steps:
 
@@ -127,7 +127,7 @@ A second job is defined for automatically stopping the deployment in non-product
 
 Note that [environment templates](#environments) further customize deploy jobs.
 
-### Environments
+## Environment Templates
 
 Environment templates in [environments](./environments/) directory build upon jobs templates to provide specialized jobs for staging and production environments, and guarantee unique names for all resources in the swarm cluster. Users can define jobs for other custom environments if needed.
 
@@ -137,7 +137,7 @@ Available (or active) and stopped environments for a project can be found in the
 
 You can learn more about the [application variables](#application-properties) that govern environment behavior below.
 
-#### Production
+### Production
 
 [Production environments](./environments/production.yml) are long-lived deployments that ideally follow the default branch (`master` or `main`). Deployment is done to the same swarm stack by replacing it with new docker images, secrets and variables, etc...
 
@@ -145,19 +145,13 @@ Ready-to-use pipelines do not provide a "stop deploy" job for this environment.
 
 Stack name for production environment defaults to `$APP_NAME`, and in the case of webapps, the URL defaults to `https://$APP_NAME.$APP_DOMAIN`.
 
-#### Staging
+### Staging
 
 [Staging environments](./environments/staging.yml) are meant to examine or review a feature branch. Multiple staging environments can co-exist concurrently, each one following a different branch. Updates to a branch will trigger a replacement of the associated staging environment with the new code (via docker images).
 
 Stack names for staging environments contain the `$APP_NAME` and `$CI_COMMIT_REF_SLUG` to isolate them. For webapps, the URL is based on the stack name and cluster domain, i.e. `https://$APP_NAME-$CI_COMMIT_REF_SLUG.$SWARM_CLUSTER`
 
 By default, staging environments automatically stop when the branch is merged or deleted, or after 3 days. This promotes short-lived feature branches and helps prevent cluttering the swarm cluster with too many environments. This setting can be customized by the user.
-
-### Customizing jobs and pipelines
-
-Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job.
-
-Several customization examples can be found in [examples](./examples).
 
 ## Variables
 
@@ -189,6 +183,12 @@ The following variables are computed by the pipeline, and in some cases can be o
 
 - `SECRET_*`: App secrets to create in swarm stack, after removing the prefix SECRET_ (optional).
 - `SECRET_*_BASE64`: Same as above but base64 encoded, after removing suffix _BASE64 too (optional).
+
+## Customizing jobs and pipelines
+
+Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job.
+
+Several customization examples can be found in [examples](./examples).
 
 ## Author Information
 
