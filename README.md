@@ -19,6 +19,8 @@ variables:
 
 Customize `APP_NAME` with your application name and adjust other variables if needed (see [Variables](#variables) below for details). If you prefer a [Release from Tag](#release-from-tag) pipeline use `/pipelines/release-from-tag.yml` instead of `/pipelines/release-from-trunk.yml`. Other examples can be found in [examples](./examples/).
 
+Note that `ref` should be a tag. Using a branch can lead to including wrong templates from [templates/main.yml](./templates/main.yml), where `ref` is hard-coded to a tag. This constraint will be lifted once [GitLab's issue #219065](https://gitlab.com/gitlab-org/gitlab/-/issues/219065) is resolved.
+
 ## Pre-defined Pipelines
 
 Pipeliner defines two ready-to-use pipelines without further user modifications needed:
