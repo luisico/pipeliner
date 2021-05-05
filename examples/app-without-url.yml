@@ -1,9 +1,9 @@
 ---
 include:
   project: cce/pipeliner
-  ref: master
+  ref: 1.0.0
   file:
-    - /templates/main.yml
+    - /main.yml
     - /pipelines/release-from-tag.yml
 
 variables:
