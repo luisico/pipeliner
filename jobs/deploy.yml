@@ -5,7 +5,8 @@
     name: $CI_COMMIT_REF_SLUG
   before_script:
     - wget https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -O /usr/local/bin/yq
-    - chmod +x /usr/local/bin/yq
+    - wget https://raw.githubusercontent.com/sudo-bmitch/docker-stack-wait/main/docker-stack-wait.sh -O /usr/local/bin/docker-stack-wait.sh
+    - chmod +x /usr/local/bin/yq /usr/local/bin/docker-stack-wait.sh
     - apk add jq
     - !reference [.setup_swarm, script]
     - !reference [.prepare_secrets, script]
@@ -15,6 +16,7 @@
   script:
     - echo "Deploying stack '$STACK_NAME' from image version '$APP_VERSION' ..."
     - docker stack deploy -c "${STACK_FILE:-stack.yml}" "$STACK_NAME" --with-registry-auth
+    - /usr/local/bin/docker-stack-wait.sh -t 300 "$STACK_NAME"
     - if [ -n "$CI_ENVIRONMENT_URL" ]; then echo "Application available at $CI_ENVIRONMENT_URL"; fi
 
 .stop_deploy:
