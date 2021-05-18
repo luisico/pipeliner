@@ -99,4 +99,5 @@
         fi
         APP_VERSION="$(cat VERSION)"
       fi
+      export APP_VERSION
       echo "APP_VERSION set to '$APP_VERSION'"
