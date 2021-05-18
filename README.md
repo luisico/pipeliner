@@ -8,7 +8,7 @@ Add the following snippet to `.gitlab-ci.yml` in your repository:
 ```yaml
 include:
   project: cce/pipeliner
-  ref: 1.0.0
+  ref: 1.0.1
   file:
     - /main.yml
     - /pipelines/release-from-trunk.yml
