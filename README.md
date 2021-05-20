@@ -66,7 +66,7 @@ Scripts shared by multiple jobs are compiled together in [jobs/scripts.yml](./jo
 
 ### Build
 
-[This job](./jobs/build.yml) builds a docker image and pushes it to the project's registry using the commit's SHA as image tag, i.e. `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA`. If the latest images (`:$CI_COMMIT_BEFORE_SHA` shorten to 8 characters, and `:latest`) are present in the registry, they will be used as cache to speed up the build process.
+The [`.build` job](./jobs/build.yml) builds a docker image and pushes it to the project's registry using the commit's SHA as image tag, i.e. `$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA`. If the latest images (`:$CI_COMMIT_BEFORE_SHA` shorten to 8 characters, and `:latest`) are present in the registry, they will be used as cache to speed up the build process.
 
 Two variables can be passed customize the build job:
 - `DOCKER_CONTEXT` is the relative path to directory with the `Dockerfile` (defaults to `.`).
@@ -81,21 +81,21 @@ To reduce the burden on the GitLab server, it is advised to configure the projec
 
 ### Test
 
-[This job](./jobs/test.yml) is a placeholder for a test job that always passes. Developers should implement their own test job(s).
+The [`.test` job](./jobs/test.yml) is a placeholder for a test job that always passes. Developers should implement their own test job(s).
 
 ### Pre Release
 
-[Pre_release jobs](./jobs/pre_release.yml) perform checks on the release version to avoid conflicts. Currently, the job checks if a tag is already present in the remote repository with the same version. If so, the job will fail and downstream jobs will be blocked unless it was run on an open merge request. In this case the pipeline is allowed to proceed but developers are advised to fix the version before merging.
+The [`.prepare_release` job](./jobs/pre_release.yml) perform checks on the release version to avoid conflicts. Currently, the job checks if a tag is already present in the remote repository with the same version. If so, the job will fail and downstream jobs will be blocked unless it was run on an open merge request. In this case the pipeline is allowed to proceed but developers are advised to fix the version before merging.
 
 See [Release Jobs](#release) below to understand how release versions are found. Users can customize this as well and how to perform version checks.
 
 ### Release
 
-[Two jobs](./jobs/release.yml) are executed in parallel in this stage: (`create_release` and `tag_image`).
+[Two jobs](./jobs/release.yml) are executed in parallel in this stage:
 
-The first job one leverages GitLab's [release keyword](https://docs.gitlab.com/ee/ci/yaml/README.html#release) to create a new [Release in GitLab](https://docs.gitlab.com/ee/user/project/releases) with the specified version. This job also creates a tag in the remote repository if one doesn't exists already.
+`.create_release` job leverages GitLab's [release keyword](https://docs.gitlab.com/ee/ci/yaml/README.html#release) to create a new [Release in GitLab](https://docs.gitlab.com/ee/user/project/releases) with the specified version. This job also creates a tag in the remote repository if one doesn't exists already.
 
-The second job will push a tag to the image with the specified version. Additionally, a second tag `:latest` is also pushed. Variable `DOCKER_IMAGE` can be passed to specify the full URL to the image registry (see [Build jobs](#build) above).
+`.tag_image` job will push a tag to the image with the specified version. Additionally, a second tag `:latest` is also pushed. Variable `DOCKER_IMAGE` can be passed to specify the full URL to the image registry (see [Build jobs](#build) above).
 
 For ready-to-use pipelines release version are set as follows:
 - [Release from Trunk](#release-from-trunk) pipelines use the value found in `VERSION` file.
@@ -118,7 +118,7 @@ Users can also customize the `.set_app_version` script provided in [jobs/scripts
 
 ### Deploy
 
-A [deploy job](./jobs/release.yml) consists of the following steps:
+A [`.deploy` job](./jobs/release.yml) consists of the following steps:
 
 1. Setup access to the swarm cluster. See [variables](#variables) below for a list of variables needed to connect to the swarm cluster.
 1. Prepare application secrets. All environment variables with prefix `SECRET_` will be processed and stored in directory `~/.secrets` (in the docker container) were they will be available for the swarm stack. Those with suffix `_BASE64` will first be decoded.
@@ -127,7 +127,7 @@ A [deploy job](./jobs/release.yml) consists of the following steps:
 1. Set application release version.
 1. Deploy stack from the swarm stack file.
 
-A second job is defined for automatically stopping the deployment in non-production environments when the associated branch is deleted from the project's repository, or when the environments is manually stopped via GitLab's UI.
+A second [`.stop_deploy` job](./jobs/release.yml) is defined for automatically stopping the deployment in non-production environments when the associated branch is deleted from the project's repository, or when the environments is manually stopped via GitLab's UI.
 
 Note that [environment templates](#environments) further customize deploy jobs.
 
