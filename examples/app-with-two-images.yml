@@ -1,0 +1,56 @@
+---
+include:
+  project: cce/pipeliner
+  ref: 1.1.0
+  file:
+    - /templates/main.yml
+    - /pipelines/release-from-trunk.yml
+
+variables:
+  APP_NAME: myapp
+
+# Build stage
+# Prevent default job from running, and create two new jobs to build server and client images
+
+Build Image:
+  rules:
+    - when: never
+
+Build Backend:
+  extends: Build Image
+  variables:
+    DOCKER_CONTEXT: backend
+    DOCKER_IMAGE: $CI_REGISTRY_IMAGE/backend
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+Build Frontend:
+  extends: Build Image
+  variables:
+    DOCKER_CONTEXT: frontend
+    DOCKER_IMAGE: $CI_REGISTRY_IMAGE/frontend
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+# Release stage
+# Prevent default job from running, and create two new jobs to tag server and client images
+
+Tag Image:
+  rules:
+    - when: never
+
+Tag Image:
+  extends: Tag Image
+  variables:
+    DOCKER_IMAGE: $CI_REGISTRY_IMAGE/backend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+Tag Image:
+  extends: Tag Image
+  variables:
+    DOCKER_IMAGE: $CI_REGISTRY_IMAGE/frontend
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

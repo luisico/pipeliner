@@ -43,6 +43,7 @@
   script:
     - echo "Preparing secrets in files ..."
     - mkdir ~/.secrets
+    - if [ -d secrets ]; then rm -rf secrets; fi
     - ln -s ~/.secrets secrets
     - |-
       for secret in $(printenv | grep ^SECRET_); do
