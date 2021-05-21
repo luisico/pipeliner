@@ -29,7 +29,7 @@ image: docker:20.10.5-git
 
 include:
   - project: cce/pipeliner
-    ref: lg/6-improve-build-customization
+    ref: 1.1.0
     file:
       # Jobs
       - /jobs/scripts.yml
