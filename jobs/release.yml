@@ -13,7 +13,6 @@
   tags:
     - docker-build
   variables:
-    GIT_STRATEGY: none
     DOCKER_IMAGE: $CI_REGISTRY_IMAGE
   before_script:
     - !reference [.docker_login, script]
