@@ -190,7 +190,7 @@ The following variables are computed by the pipeline, and in some cases can be o
 
 ## Customizing jobs and pipelines
 
-Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job.
+Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job. Some jobs also provide placeholders for custom scripts (i.e. `.custom_deploy` or `.custom_stop_deploy`) that users can customize to provide extra processing steps.
 
 Several customization examples can be found in [examples](./examples).
 

@@ -9,6 +9,7 @@
     - chmod +x /usr/local/bin/yq /usr/local/bin/docker-stack-wait.sh
     - apk add jq
     - !reference [.setup_swarm, script]
+    - !reference [.custom_deploy, script]
     - !reference [.prepare_secrets, script]
     - !reference [.version_secrets_configs, script]
     - !reference [.docker_login, script]
@@ -28,6 +29,7 @@
     action: stop
   before_script:
     - !reference [.setup_swarm, script]
+    - !reference [.custom_stop_deploy, script]
   script:
     - echo "Destroying stack deployment '$STACK_NAME' ..."
     - docker stack rm "$STACK_NAME"

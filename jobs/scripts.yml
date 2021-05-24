@@ -102,3 +102,15 @@
       fi
       export APP_VERSION
       echo "APP_VERSION set to '$APP_VERSION'"
+
+#
+# Placeholders for custom scripts
+#
+
+.custom_deploy:
+  script:
+    - echo "Custom deploy script not defined, skipping..."
+
+.custom_stop_deploy:
+  script:
+    - echo "Custom stop deploy script not defined, skipping..."
