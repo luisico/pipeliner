@@ -153,7 +153,7 @@ Stack name for production environment defaults to `$APP_NAME`, and in the case o
 
 [Staging environments](./environments/staging.yml) are meant to examine or review a feature branch. Multiple staging environments can co-exist concurrently, each one following a different branch. Updates to a branch will trigger a replacement of the associated staging environment with the new code (via docker images).
 
-Stack names for staging environments contain the `$APP_NAME` and `$CI_COMMIT_REF_SLUG` to isolate them. For webapps, the URL is based on the stack name and cluster domain, i.e. `https://$APP_NAME-$CI_COMMIT_REF_SLUG.$SWARM_CLUSTER`
+Stack names and URLs for staging environments are dynamically set based on variables `$APP_NAME` and `$CI_COMMIT_REF_SLUG`. See [Staging environments](./environments/staging.yml) for details. To support Netapp volume drivers, `STACK_NAME` is limited to 64 characters and dashes are replaced with underscores.
 
 By default, staging environments automatically stop when the branch is merged or deleted, or after 3 days. This promotes short-lived feature branches and helps prevent cluttering the swarm cluster with too many environments. This setting can be customized by the user.
 

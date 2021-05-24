@@ -15,6 +15,7 @@
     - !reference [.docker_login, script]
     - !reference [.set_app_version, script]
   script:
+    - export STACK_NAME=$(echo $STACK_NAME | tr '-' '_' | cut -c -64)
     - echo "Deploying stack '$STACK_NAME' from image version '$APP_VERSION' ..."
     - docker stack deploy -c "${STACK_FILE:-stack.yml}" "$STACK_NAME" --with-registry-auth
     - /usr/local/bin/docker-stack-wait.sh -t 300 "$STACK_NAME"
@@ -31,5 +32,6 @@
     - !reference [.setup_swarm, script]
     - !reference [.custom_stop_deploy, script]
   script:
+    - export STACK_NAME=$(echo $STACK_NAME | tr '-' '_' | cut -c -64)
     - echo "Destroying stack deployment '$STACK_NAME' ..."
     - docker stack rm "$STACK_NAME"
