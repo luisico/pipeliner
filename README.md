@@ -180,8 +180,8 @@ The following variables are computed by the pipeline, and in some cases can be o
 
 - `APP_ENV`: Environment to run on.
 - `APP_VERSION`: Version to build/tag images, create releases and deployments.
+- `APP_HOST`: Host part in URL for deployments.
 - `STACK_NAME`: Name of deployed stack, used in swarm stacks, secrets and configs to isolate deployments.
-- `STACK_DOMAIN`: Domain URL for deployments.
 
 ### Secrets
 
