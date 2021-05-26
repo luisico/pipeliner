@@ -1,0 +1,65 @@
+---
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+
+stages:
+  - build
+  - test
+  - deploy
+
+# Set APP_VERSION to current commit (continuous release)
+#   - Remove pre_release and release stages
+#   - Tag docker images with $CI_COMMIT_SHORT_SHA
+
+.set_app_version:
+  script:
+    - echo "Setting APP_VERSION to $CI_COMMIT_SHORT_SHA ..."
+    - |-
+      if [ -z "$APP_VERSION" -o "$APP_VERSION" = "" ]; then
+        APP_VERSION="$CI_COMMIT_SHORT_SHA"
+      fi
+      export APP_VERSION
+
+### Build ###
+
+Build Image:
+  stage: build
+  extends: .build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+### Test ###
+
+Test:
+  stage: test
+  extends: .test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+### Deploy ###
+
+Deploy Staging:
+  stage: deploy
+  extends: .deploy_staging
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+Stop Staging:
+  stage: deploy
+  extends: .stop_staging
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      allow_failure: true
+      when: manual
+
+Deploy Production:
+  stage: deploy
+  extends: .deploy_production
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'

@@ -1,0 +1,10 @@
+---
+include:
+  project: cce/pipeliner
+  ref: 1.2.0
+  file:
+    - /main.yml
+    - /pipelines/continuous-release.yml
+
+variables:
+  APP_NAME: myapp

@@ -23,24 +23,25 @@ Note that `ref` should be a tag. Using a branch can lead to including wrong temp
 
 ## Pre-defined Pipelines
 
-Pipeliner defines two ready-to-use pipelines without further user modifications needed:
+Pipeliner defines three ready-to-use pipelines without further user modifications needed:
 - [Release from Trunk](#release-from-trunk)
 - [Release from Tag](#release-from-tag)
+- [Continuous Release](#continuous-release)
 
-Both pipelines follow the base principles of [Trunk-Based Development](https://trunkbaseddevelopment.com), i.e. using short-lived branches for any development, be it a new feature, a bug fix, or a simple code refactoring. Once the work is done and tested the code is merged into the trunk, at which point the code is considered to be production ready. Pipelines differ in timing for production release and deployment.
-
-Pipelines have the following stages:
-1. build
-1. test
-1. pre_release
-1. release
-1. deploy
+Pipelines follow the base principles of [Trunk-Based Development](https://trunkbaseddevelopment.com), i.e. using short-lived branches for any development, be it a new feature, a bug fix, or a simple code refactoring. Once the work is done and tested the code is merged into the trunk, at which point the code is considered to be production ready. Pipelines differ in timing for production release and deployment.
 
 ### Release from Trunk
 
 A new release is created and deployed to production on every push to the default branch (usually `master` or `main`). Ideally, this should happen via a merge request, but it is not enforced.
 
 Developers needs to carefully maintain a `VERSION` file in the repository's root to define the release version (git tags) and docker image tags. Jobs in the `pre_release` will check for version conflicts.
+
+This pipeline has the following stages:
+1. build
+1. test
+1. pre_release
+1. release
+1. deploy
 
 See [pipelines/release-from-trunk.yml](./pipelines/release-from-trunk.yml) for the full pipeline definition.
 
@@ -50,7 +51,27 @@ A new release is created and deployed to production when a tag is pushed (or man
 
 This workflow allows for multiple independently developed features to be release at the same time. Although a `VERSION` file is not needed because a git tag will be used to create the release, it is considered a good practice to maintain a `VERSION` file in sync with the tags. Jobs in the `pre_release` will check for version conflicts.
 
+This pipeline has the following stages:
+1. build
+1. test
+1. pre_release
+1. release
+1. deploy
+
 See [pipelines/release-from-tag.yml](./pipelines/release-from-tag.yml) for the full pipeline definition.
+
+### Continuous Release
+
+This pipeline supports continuous release workflows, where the app is frequently released to production.
+
+In this scenario direct pushes to the default branch (usually `master` or `main`) produce immediate deployments to production (no manual intervention required). Versioning is implicit by commit SHAs, and there is no need to maintain a `VERSION` file. Optionally, the pipeline support staging environments via merge requests. This pipeline does not create git tags or GitLab releases.
+
+This pipeline has the following stages:
+1. build
+1. test
+1. deploy
+
+See [pipelines/continuous-release.yml](./pipelines/continuous-release.yml) for the full pipeline definition.
 
 ## Templates
 
