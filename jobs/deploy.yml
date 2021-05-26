@@ -4,7 +4,7 @@
   environment:
     name: $CI_COMMIT_REF_SLUG
   before_script:
-    - wget https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -O /usr/local/bin/yq
+    - wget https://github.com/mikefarah/yq/releases/download/v4.9.3/yq_linux_amd64 -O /usr/local/bin/yq
     - wget https://raw.githubusercontent.com/sudo-bmitch/docker-stack-wait/main/docker-stack-wait.sh -O /usr/local/bin/docker-stack-wait.sh
     - chmod +x /usr/local/bin/yq /usr/local/bin/docker-stack-wait.sh
     - apk add jq

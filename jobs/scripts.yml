@@ -68,7 +68,7 @@
 .version_secrets_configs:
   script:
     - echo "Versioning docker swarm secrets and configs ..."
-    - items=$(yq r -j ${STACK_FILE:-stack.yml} | jq -r '.secrets // [], .configs // [] | keys[] as $k | "\($k)=\(.[$k] | .file)"')
+    - items=$(yq e -j ${STACK_FILE:-stack.yml} | jq -r '.secrets // [], .configs // [] | keys[] as $k | "\($k)=\(.[$k] | .file)"')
     - |-
       for item in $items; do
         name="${item%=*}"
