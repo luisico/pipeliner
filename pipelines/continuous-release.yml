@@ -9,6 +9,7 @@ workflow:
 stages:
   - build
   - test
+  - release
   - deploy
 
 # Set APP_VERSION to current commit (continuous release)
@@ -41,6 +42,14 @@ Test:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH'
+
+### Release ###
+
+Tag Image:
+  stage: release
+  extends: .tag_image
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 ### Deploy ###
 
