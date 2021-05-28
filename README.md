@@ -64,11 +64,12 @@ See [pipelines/release-from-tag.yml](./pipelines/release-from-tag.yml) for the f
 
 This pipeline supports continuous release workflows, where the app is frequently released to production.
 
-In this scenario direct pushes to the default branch (usually `master` or `main`) produce immediate deployments to production (no manual intervention required). Versioning is implicit by commit SHAs, and there is no need to maintain a `VERSION` file. Optionally, the pipeline support staging environments via merge requests. This pipeline does not create git tags or GitLab releases.
+In this scenario direct pushes to the default branch (usually `master` or `main`) produce immediate deployments to production (no manual intervention required). Versioning is implicit by commit SHAs, and there is no need to maintain a `VERSION` file. The release stage will only push a `latest` image for production environments. Optionally, the pipeline support staging environments via merge requests. The release stage only runs job `Tag Image` to push image `latest` to the registry, but does not run job `Create Release` (i.e. does not create git tags or GitLab releases).
 
 This pipeline has the following stages:
 1. build
 1. test
+1. release
 1. deploy
 
 See [pipelines/continuous-release.yml](./pipelines/continuous-release.yml) for the full pipeline definition.
