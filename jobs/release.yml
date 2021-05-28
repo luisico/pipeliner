@@ -19,7 +19,15 @@
     - !reference [.set_app_version, script]
   script:
     - docker pull "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA"
-    - docker tag "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" "$DOCKER_IMAGE:latest"
-    - docker push "$DOCKER_IMAGE:latest"
-    - docker tag "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" "$DOCKER_IMAGE:$APP_VERSION"
-    - docker push "$DOCKER_IMAGE:$APP_VERSION"
+    - |
+      echo "Pushing tag 'latest' ..."
+      docker tag "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" "$DOCKER_IMAGE:latest"
+      docker push "$DOCKER_IMAGE:latest"
+    - |
+      echo "Pushing tag '$APP_VERSION' ..."
+      if [ "$APP_VERSION" = "$CI_COMMIT_SHORT_SHA" ]; then
+        echo "Skipping: APP_VERSION is already in registry as CI_COMMIT_SHORT_SHA"
+      else
+        docker tag "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" "$DOCKER_IMAGE:$APP_VERSION"
+        docker push "$DOCKER_IMAGE:$APP_VERSION"
+      fi
