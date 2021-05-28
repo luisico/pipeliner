@@ -24,7 +24,7 @@
       docker tag "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" "$DOCKER_IMAGE:latest"
       docker push "$DOCKER_IMAGE:latest"
     - |
-      echo "Pushing tag '$APP_VERSION' ..."
+      echo "Pushing tag 'APP_VERSION=$APP_VERSION' ..."
       if [ "$APP_VERSION" = "$CI_COMMIT_SHORT_SHA" ]; then
         echo "Skipping: APP_VERSION is already in registry as CI_COMMIT_SHORT_SHA"
       else
