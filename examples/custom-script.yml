@@ -1,0 +1,16 @@
+---
+include:
+  project: cce/pipeliner
+  ref: 1.2.0
+  file:
+    - /main.yml
+    - /pipelines/release-from-trunk.yml
+
+variables:
+  APP_NAME: myapp
+
+# Add deploy logic via custom scripts
+.custom_deploy:
+  script:
+    # Create config file from environment
+    - printenv | grep MYAPP > local_config.env

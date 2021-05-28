@@ -68,7 +68,7 @@
 .version_secrets_configs:
   script:
     - echo "Versioning docker swarm secrets and configs ..."
-    - items=$(yq r -j ${STACK_FILE:-stack.yml} | jq -r '.secrets // [], .configs // [] | keys[] as $k | "\($k)=\(.[$k] | .file)"')
+    - items=$(yq e -j ${STACK_FILE:-stack.yml} | jq -r '.secrets // [], .configs // [] | keys[] as $k | "\($k)=\(.[$k] | .file)"')
     - |-
       for item in $items; do
         name="${item%=*}"
@@ -102,3 +102,15 @@
       fi
       export APP_VERSION
       echo "APP_VERSION set to '$APP_VERSION'"
+
+#
+# Placeholders for custom scripts
+#
+
+.custom_deploy:
+  script:
+    - echo "Custom deploy script not defined, skipping..."
+
+.custom_stop_deploy:
+  script:
+    - echo "Custom stop deploy script not defined, skipping..."

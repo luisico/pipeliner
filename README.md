@@ -8,7 +8,7 @@ Add the following snippet to `.gitlab-ci.yml` in your repository:
 ```yaml
 include:
   project: cce/pipeliner
-  ref: 1.1.0
+  ref: 1.2.0
   file:
     - /main.yml
     - /pipelines/release-from-trunk.yml
@@ -23,24 +23,25 @@ Note that `ref` should be a tag. Using a branch can lead to including wrong temp
 
 ## Pre-defined Pipelines
 
-Pipeliner defines two ready-to-use pipelines without further user modifications needed:
+Pipeliner defines three ready-to-use pipelines without further user modifications needed:
 - [Release from Trunk](#release-from-trunk)
 - [Release from Tag](#release-from-tag)
+- [Continuous Release](#continuous-release)
 
-Both pipelines follow the base principles of [Trunk-Based Development](https://trunkbaseddevelopment.com), i.e. using short-lived branches for any development, be it a new feature, a bug fix, or a simple code refactoring. Once the work is done and tested the code is merged into the trunk, at which point the code is considered to be production ready. Pipelines differ in timing for production release and deployment.
-
-Pipelines have the following stages:
-1. build
-1. test
-1. pre_release
-1. release
-1. deploy
+Pipelines follow the base principles of [Trunk-Based Development](https://trunkbaseddevelopment.com), i.e. using short-lived branches for any development, be it a new feature, a bug fix, or a simple code refactoring. Once the work is done and tested the code is merged into the trunk, at which point the code is considered to be production ready. Pipelines differ in timing for production release and deployment.
 
 ### Release from Trunk
 
 A new release is created and deployed to production on every push to the default branch (usually `master` or `main`). Ideally, this should happen via a merge request, but it is not enforced.
 
 Developers needs to carefully maintain a `VERSION` file in the repository's root to define the release version (git tags) and docker image tags. Jobs in the `pre_release` will check for version conflicts.
+
+This pipeline has the following stages:
+1. build
+1. test
+1. pre_release
+1. release
+1. deploy
 
 See [pipelines/release-from-trunk.yml](./pipelines/release-from-trunk.yml) for the full pipeline definition.
 
@@ -50,7 +51,28 @@ A new release is created and deployed to production when a tag is pushed (or man
 
 This workflow allows for multiple independently developed features to be release at the same time. Although a `VERSION` file is not needed because a git tag will be used to create the release, it is considered a good practice to maintain a `VERSION` file in sync with the tags. Jobs in the `pre_release` will check for version conflicts.
 
+This pipeline has the following stages:
+1. build
+1. test
+1. pre_release
+1. release
+1. deploy
+
 See [pipelines/release-from-tag.yml](./pipelines/release-from-tag.yml) for the full pipeline definition.
+
+### Continuous Release
+
+This pipeline supports continuous release workflows, where the app is frequently released to production.
+
+In this scenario direct pushes to the default branch (usually `master` or `main`) produce immediate deployments to production (no manual intervention required). Versioning is implicit by commit SHAs, and there is no need to maintain a `VERSION` file. The release stage will only push a `latest` image for production environments. Optionally, the pipeline support staging environments via merge requests. The release stage only runs job `Tag Image` to push image `latest` to the registry, but does not run job `Create Release` (i.e. does not create git tags or GitLab releases).
+
+This pipeline has the following stages:
+1. build
+1. test
+1. release
+1. deploy
+
+See [pipelines/continuous-release.yml](./pipelines/continuous-release.yml) for the full pipeline definition.
 
 ## Templates
 
@@ -153,7 +175,7 @@ Stack name for production environment defaults to `$APP_NAME`, and in the case o
 
 [Staging environments](./environments/staging.yml) are meant to examine or review a feature branch. Multiple staging environments can co-exist concurrently, each one following a different branch. Updates to a branch will trigger a replacement of the associated staging environment with the new code (via docker images).
 
-Stack names for staging environments contain the `$APP_NAME` and `$CI_COMMIT_REF_SLUG` to isolate them. For webapps, the URL is based on the stack name and cluster domain, i.e. `https://$APP_NAME-$CI_COMMIT_REF_SLUG.$SWARM_CLUSTER`
+Stack names and URLs for staging environments are dynamically set based on variables `$APP_NAME` and `$CI_COMMIT_REF_SLUG`. See [Staging environments](./environments/staging.yml) for details. To support Netapp volume drivers, `STACK_NAME` is limited to 64 characters and dashes are replaced with underscores.
 
 By default, staging environments automatically stop when the branch is merged or deleted, or after 3 days. This promotes short-lived feature branches and helps prevent cluttering the swarm cluster with too many environments. This setting can be customized by the user.
 
@@ -180,8 +202,8 @@ The following variables are computed by the pipeline, and in some cases can be o
 
 - `APP_ENV`: Environment to run on.
 - `APP_VERSION`: Version to build/tag images, create releases and deployments.
+- `APP_HOST`: Host part in URL for deployments.
 - `STACK_NAME`: Name of deployed stack, used in swarm stacks, secrets and configs to isolate deployments.
-- `STACK_DOMAIN`: Domain URL for deployments.
 
 ### Secrets
 
@@ -190,7 +212,7 @@ The following variables are computed by the pipeline, and in some cases can be o
 
 ## Customizing jobs and pipelines
 
-Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job.
+Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job. Some jobs also provide placeholders for custom scripts (i.e. `.custom_deploy` or `.custom_stop_deploy`) that users can customize to provide extra processing steps.
 
 Several customization examples can be found in [examples](./examples).
 

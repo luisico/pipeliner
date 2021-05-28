@@ -4,20 +4,30 @@
   environment:
     name: $CI_COMMIT_REF_SLUG
   before_script:
-    - wget https://github.com/mikefarah/yq/releases/download/2.4.0/yq_linux_amd64 -O /usr/local/bin/yq
+    - wget https://github.com/mikefarah/yq/releases/download/v4.9.3/yq_linux_amd64 -O /usr/local/bin/yq
     - wget https://raw.githubusercontent.com/sudo-bmitch/docker-stack-wait/main/docker-stack-wait.sh -O /usr/local/bin/docker-stack-wait.sh
     - chmod +x /usr/local/bin/yq /usr/local/bin/docker-stack-wait.sh
     - apk add jq
     - !reference [.setup_swarm, script]
+    - !reference [.custom_deploy, script]
     - !reference [.prepare_secrets, script]
     - !reference [.version_secrets_configs, script]
     - !reference [.docker_login, script]
     - !reference [.set_app_version, script]
   script:
+    - export STACK_NAME=$(echo $STACK_NAME | tr '-' '_' | cut -c -64)
     - echo "Deploying stack '$STACK_NAME' from image version '$APP_VERSION' ..."
+    - |
+      if [ -n "$CI_ENVIRONMENT_URL" ]; then
+        echo "Application will be available at $CI_ENVIRONMENT_URL"
+        if [ -z "$APP_HOST" -o "$APP_HOST" = "" ]; then
+          proto=$(echo $CI_ENVIRONMENT_URL | grep :// | sed -e 's,^\(.*://\).*,\1,g')
+          APP_HOST=$(echo $CI_ENVIRONMENT_URL | sed -e s,$proto,,g | cut -d/ -f1)
+        fi
+        export APP_HOST
+      fi
     - docker stack deploy -c "${STACK_FILE:-stack.yml}" "$STACK_NAME" --with-registry-auth
     - /usr/local/bin/docker-stack-wait.sh -t 300 "$STACK_NAME"
-    - if [ -n "$CI_ENVIRONMENT_URL" ]; then echo "Application available at $CI_ENVIRONMENT_URL"; fi
 
 .stop_deploy:
   stage: deploy
@@ -28,6 +38,8 @@
     action: stop
   before_script:
     - !reference [.setup_swarm, script]
+    - !reference [.custom_stop_deploy, script]
   script:
+    - export STACK_NAME=$(echo $STACK_NAME | tr '-' '_' | cut -c -64)
     - echo "Destroying stack deployment '$STACK_NAME' ..."
     - docker stack rm "$STACK_NAME"

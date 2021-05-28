@@ -4,7 +4,7 @@ include:
   ref: 1.2.0
   file:
     - /main.yml
-    - /pipelines/release-from-trunk.yml
+    - /pipelines/continuous-release.yml
 
 variables:
   APP_NAME: myapp
