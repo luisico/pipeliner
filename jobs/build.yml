@@ -8,6 +8,7 @@
     DOCKER_IMAGE: $CI_REGISTRY_IMAGE
   before_script:
     - !reference [.docker_login, script]
+    - !reference [.set_app_version, script]
   script:
     - |-
       if docker pull "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" 2>/dev/null; then
@@ -23,5 +24,6 @@
         --build-arg BUILD_DATE="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
         --build-arg VCS_REF="$CI_COMMIT_SHORT_SHA"
         --build-arg VCS_URL="$CI_PROJECT_URL"
+        --build-arg VERSION="${APP_VERSION:-$CI_COMMIT_SHORT_SHA}"
         --tag "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA" "$DOCKER_CONTEXT"
     - docker push "$DOCKER_IMAGE:$CI_COMMIT_SHORT_SHA"
