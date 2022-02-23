@@ -195,7 +195,7 @@ Ask cluster admin for values.
 ### Application properties
 
 - `APP_NAME`: App prefix to isolate deployments (default: "$CI_PROJECT_NAME").
-- `APP_DOMAIN`: Domain for app URL in production (default: "rockefeller.edu").
+- `APP_DOMAIN`: Domain for app URL in production (default: "example.com").
 - `STACK_FILE`: Relative path to docker-compose file (default: "stack.yml").
 
 The following variables are computed by the pipeline, and in some cases can be overridden. See environments directory for default values.
