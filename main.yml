@@ -25,7 +25,7 @@ variables:
   APP_DOMAIN: example.com
   STACK_FILE: stack.yml
 
-image: docker:20.10.5-git
+image: docker:20.10.12-git
 
 include:
   - project: cce/pipeliner
