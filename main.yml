@@ -29,7 +29,7 @@ image: docker:20.10.12-git
 
 include:
   - project: cce/pipeliner
-    ref: 1.3.0
+    ref: 1.4.0
     file:
       # Jobs
       - /jobs/scripts.yml
