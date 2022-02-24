@@ -8,7 +8,7 @@ Add the following snippet to `.gitlab-ci.yml` in your repository:
 ```yaml
 include:
   project: cce/pipeliner
-  ref: 1.3.0
+  ref: 1.4.0
   file:
     - /main.yml
     - /pipelines/release-from-trunk.yml
@@ -195,7 +195,7 @@ Ask cluster admin for values.
 ### Application properties
 
 - `APP_NAME`: App prefix to isolate deployments (default: "$CI_PROJECT_NAME").
-- `APP_DOMAIN`: Domain for app URL in production (default: "rockefeller.edu").
+- `APP_DOMAIN`: Domain for app URL in production (default: "example.com").
 - `STACK_FILE`: Relative path to docker-compose file (default: "stack.yml").
 
 The following variables are computed by the pipeline, and in some cases can be overridden. See environments directory for default values.
@@ -215,6 +215,10 @@ The following variables are computed by the pipeline, and in some cases can be o
 Jobs can be customized in multiple ways. For small changes, changing [variables](#variables) might be enough. Other times, [template jobs](./jobs/) or [template scripts](./jobs/scripts.yml) can be redefined in project's pipeline to override certain aspects or the full job. Some jobs also provide placeholders for custom scripts (i.e. `.custom_deploy` or `.custom_stop_deploy`) that users can customize to provide extra processing steps.
 
 Several customization examples can be found in [examples](./examples).
+
+## License
+
+MIT
 
 ## Author Information
 

@@ -9,7 +9,7 @@
 
 # Application properties:
 # APP_NAME                  App prefix to isolate deployments (default: "$CI_PROJECT_NAME")
-# APP_DOMAIN                Domain for app URL in production (default: "rockefeller.edu")
+# APP_DOMAIN                Domain for app URL in production (default: "example.com")
 # STACK_FILE                Relative path to docker-compose file (default: "stack.yml")
 # SECRET_*                  App secrets to create in swarm stack, after removing the prefix SECRET_ (optional)
 # SECRET_*_BASE64           Same as above but base64 encoded, after removing suffix _BASE64 too (optional)
@@ -22,14 +22,14 @@
 
 variables:
   APP_NAME: $CI_PROJECT_NAME
-  APP_DOMAIN: rockefeller.edu
+  APP_DOMAIN: example.com
   STACK_FILE: stack.yml
 
-image: docker:20.10.5-git
+image: docker:20.10.12-git
 
 include:
   - project: cce/pipeliner
-    ref: 1.3.0
+    ref: 1.4.0
     file:
       # Jobs
       - /jobs/scripts.yml
