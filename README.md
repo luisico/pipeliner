@@ -216,6 +216,10 @@ Jobs can be customized in multiple ways. For small changes, changing [variables]
 
 Several customization examples can be found in [examples](./examples).
 
+## License
+
+MIT
+
 ## Author Information
 
 Luis Gracia while at [The Rockefeller University](https://www.rockefeller.edu):
